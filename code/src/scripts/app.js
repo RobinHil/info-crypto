@@ -54,26 +54,33 @@ export class App
     async setApp()
     {
         /** Récupère les données des 100 cryptomonnaies avec les plus grosses capitalisations. */
-        await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
-        .then((response) => {
-            if (!response.ok)
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            return response.json();
-        })
-        .then((data) => {
-            /** Pour chaque cryptomonnaie on récupère ses données. */
-            data.forEach(cryptoData => {
-                /** Si une cryptomonnaie n'est pas dans '#cryptoMap' on peut la créer puis l'ajouter à la map et ajouter dans l'affichage sa carte. */
-                if (!this.#cryptoMap.has(cryptoData.id))
-                {
-                    let crypto = new Crypto(cryptoData);
-                    this.#cryptoMap.set(crypto.id, crypto);
-                    this.addCryptoCard(crypto);
-                }
+        try
+        {
+            await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+            .then((response) => {
+                if (!response.ok)
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                /** Pour chaque cryptomonnaie on récupère ses données. */
+                data.forEach(cryptoData => {
+                    /** Si une cryptomonnaie n'est pas dans '#cryptoMap' on peut la créer puis l'ajouter à la map et ajouter dans l'affichage sa carte. */
+                    if (!this.#cryptoMap.has(cryptoData.id))
+                    {
+                        let crypto = new Crypto(cryptoData);
+                        this.#cryptoMap.set(crypto.id, crypto);
+                        this.addCryptoCard(crypto);
+                    }
+                });
+                /** Appel de la fonction membre setModal de la classe App avec en paramètre la liste des boutons 'voir plus' des cartes de cryptomonnaies. */
+                this.setModal(document.querySelectorAll('.voir-plus'));
             });
-            /** Appel de la fonction membre setModal de la classe App avec en paramètre la liste des boutons 'voir plus' des cartes de cryptomonnaies. */
-            this.setModal(document.querySelectorAll('.voir-plus'));
-        });
+        }
+        catch(error)
+        {
+            document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
+        }
     }
 
     /**
@@ -103,6 +110,8 @@ export class App
     {
         btnList.forEach(btn => {
             btn.addEventListener('click', (event) => {
+                document.querySelector('#modal_show_error').textContent = '';
+
                 /** Récupération dans '#cryptoMap' la cryptomonnaie correspondante au bouton (id du bouton = id de la cryptomonnaie). */
                 let crypto = this.#cryptoMap.get(btn.id);
                 
@@ -168,6 +177,7 @@ export class App
 
         /** Actions à réaliser lorsqu'on clique sur le bouton de recherche. */
         document.querySelector('#search_btn').addEventListener('click', (event) => {
+            document.querySelector('search_show_error').textContent = '';
             document.querySelector('#search_modal_title').textContent = 'Recherche : \''+document.querySelector('#search_input').value+'\'';
             /** Appel à la fonction de recherche uniquement si le contenu de la recherche est non nul. */
             if (document.querySelector('#search_input').value!=='')
@@ -187,43 +197,57 @@ export class App
      */
     async search(searchStr)
     {
-        /** Requête permettant d'obtenir les résultats de la recherche. */
-        await fetch(`https://api.coingecko.com/api/v3/search?query=${searchStr}`)
-        .then((response) => {
-            if (!response.ok)
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            return response.json();
-        })
-        .then((data) => {
-            /** Ajoute le contenu du tableau avec tous les résultats de la recherche. */
-            let tbody = document.createElement('tbody');
-            document.querySelector('table').appendChild(tbody);
-            data.coins.forEach(cryptoData => {
-                let search_table_template = require('../templates/search-table.mustache');
-                tbody.innerHTML += Mustache.render(search_table_template, {
-                    cryptoRank: (cryptoData.market_cap_rank?cryptoData.market_cap_rank:'Indéfini'),
-                    cryptoId: cryptoData.id,
-                    cryptoName: cryptoData.name,
-                    cryptoSymbol: cryptoData.symbol,
-                    sourceImg: cryptoData.thumb
+        try
+        {
+            /** Requête permettant d'obtenir les résultats de la recherche. */
+            await fetch(`https://api.coingecko.com/api/v3/search?query=${searchStr}`)
+            .then((response) => {
+                if (!response.ok)
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                /** Ajoute le contenu du tableau avec tous les résultats de la recherche. */
+                let tbody = document.createElement('tbody');
+                document.querySelector('table').appendChild(tbody);
+                data.coins.forEach(cryptoData => {
+                    let search_table_template = require('../templates/search-table.mustache');
+                    tbody.innerHTML += Mustache.render(search_table_template, {
+                        cryptoRank: (cryptoData.market_cap_rank?cryptoData.market_cap_rank:'Indéfini'),
+                        cryptoId: cryptoData.id,
+                        cryptoName: cryptoData.name,
+                        cryptoSymbol: cryptoData.symbol,
+                        sourceImg: cryptoData.thumb
+                    });
                 });
             });
-        });
-        
-        /** Affiche les informations d'une crypto lorsque son bouton 'Voir plus' est cliqué dans le tableau des résultats de recherche. */
+        }
+        catch (error)
+        {
+            document.querySelector('#search_show_error').textContent = `Erreur: ${error} !`;
+        }
+
+        /** Affiche les informations d'une crypto lorsque son bouton 'Voir plus' est cliqué dans le tableau des résultats des recherches. */
         document.querySelectorAll('.search-voir-plus').forEach(btn => {
             btn.addEventListener('click', async (event) => {
-                await fetch(`https://api.coingecko.com/api/v3/coins/${btn.id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
-                .then((response) => {
-                    if (!response.ok)
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    return response.json();
-                })
-                .then((data) => {
-                    let crypto = new Crypto(data);
-                    this.fillModalContent(crypto);
-                    let modalChart = new CryptoCharts(crypto.id);
-                });
+                try
+                {
+                    await fetch(`https://api.coingecko.com/api/v3/coins/${btn.id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                        return response.json();
+                    })
+                    .then((data) => {
+                        let crypto = new Crypto(data);
+                        this.fillModalContent(crypto);
+                        let modalChart = new CryptoCharts(crypto.id);
+                    });
+                }
+                catch (error)
+                {
+                    document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+                }
             });
         });
     }
@@ -234,38 +258,46 @@ export class App
      */
     async reload()
     {
-        await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
-        .then((response) => {
-            if (!response.ok)
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            return response.json();
-        })
-        .then((data) => {
-            data.forEach(cryptoData => {
-                /** Un nouvel objet Crypto est créé seulement si la cryptomonnaie n'est pas déjà intégrée. */
-                if (!this.#cryptoMap.has(cryptoData.id))
-                {
-                    let crypto = new Crypto(cryptoData);
-                    this.#cryptoMap.set(crypto.id, crypto);
-                    this.addCryptoCard(crypto);
-                }
-                else
-                {
-                    this.#cryptoMap.get(cryptoData.id).image = cryptoData.image;
-                    this.#cryptoMap.get(cryptoData.id).current_price = cryptoData.current_price;
-                    this.#cryptoMap.get(cryptoData.id).market_cap_rank = cryptoData.market_cap_rank;
-                    this.#cryptoMap.get(cryptoData.id).market_cap = cryptoData.market_cap;
-                    this.#cryptoMap.get(cryptoData.id).high_24h = cryptoData.high_24h;
-                    this.#cryptoMap.get(cryptoData.id).low_24h = cryptoData.low_24h;
-                    this.#cryptoMap.get(cryptoData.id).price_change_24h = cryptoData.price_change_24h;
-                    this.#cryptoMap.get(cryptoData.id).price_change_percentage_24h = cryptoData.price_change_percentage_24h;
-                    this.#cryptoMap.get(cryptoData.id).market_cap_change_24h = cryptoData.market_cap_change_24h;
-                    this.#cryptoMap.get(cryptoData.id).market_cap_change_percentage_24h = cryptoData.market_cap_change_percentage_24h;
-                    this.#cryptoMap.get(cryptoData.id).circulating_supply = cryptoData.circulating_supply;
-                    this.#cryptoMap.get(cryptoData.id).total_supply = cryptoData.total_supply;
-                    this.#cryptoMap.get(cryptoData.id).max_supply = cryptoData.max_supply;
-                }
+        document.querySelector('page_show_error').textContent = '';
+        try
+        {  
+            await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+            .then((response) => {
+                if (!response.ok)
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                data.forEach(cryptoData => {
+                    /** Un nouvel objet Crypto est créé seulement si la cryptomonnaie n'est pas déjà intégrée. */
+                    if (!this.#cryptoMap.has(cryptoData.id))
+                    {
+                        let crypto = new Crypto(cryptoData);
+                        this.#cryptoMap.set(crypto.id, crypto);
+                        this.addCryptoCard(crypto);
+                    }
+                    else
+                    {
+                        this.#cryptoMap.get(cryptoData.id).image = cryptoData.image;
+                        this.#cryptoMap.get(cryptoData.id).current_price = cryptoData.current_price;
+                        this.#cryptoMap.get(cryptoData.id).market_cap_rank = cryptoData.market_cap_rank;
+                        this.#cryptoMap.get(cryptoData.id).market_cap = cryptoData.market_cap;
+                        this.#cryptoMap.get(cryptoData.id).high_24h = cryptoData.high_24h;
+                        this.#cryptoMap.get(cryptoData.id).low_24h = cryptoData.low_24h;
+                        this.#cryptoMap.get(cryptoData.id).price_change_24h = cryptoData.price_change_24h;
+                        this.#cryptoMap.get(cryptoData.id).price_change_percentage_24h = cryptoData.price_change_percentage_24h;
+                        this.#cryptoMap.get(cryptoData.id).market_cap_change_24h = cryptoData.market_cap_change_24h;
+                        this.#cryptoMap.get(cryptoData.id).market_cap_change_percentage_24h = cryptoData.market_cap_change_percentage_24h;
+                        this.#cryptoMap.get(cryptoData.id).circulating_supply = cryptoData.circulating_supply;
+                        this.#cryptoMap.get(cryptoData.id).total_supply = cryptoData.total_supply;
+                        this.#cryptoMap.get(cryptoData.id).max_supply = cryptoData.max_supply;
+                    }
+                });
             });
-        });
+        }
+        catch (error)
+        {
+            document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
+        }
     }
 }

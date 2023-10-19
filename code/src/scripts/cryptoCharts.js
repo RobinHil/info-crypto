@@ -31,51 +31,58 @@ export class CryptoCharts
      */
     async set24hPricesChart(cryptoId)
     {
-        await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=eur&days=1&precision=max`)
-        .then((response) => {
-            if (!response.ok)
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            return response.json();
-        })
-        .then((data) => {
-            /** Séparation en deux listes des dates/heures et des prix. */
-            let timestamps = [];
-            let prices = [];
-            data.prices.forEach(tuple => {
-                timestamps.push(new Date(tuple[0]).toLocaleString());
-                prices.push(tuple[1]);
-            });
+        try
+        {
+            await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=eur&days=1&precision=max`)
+            .then((response) => {
+                if (!response.ok)
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                /** Séparation en deux listes des dates/heures et des prix. */
+                let timestamps = [];
+                let prices = [];
+                data.prices.forEach(tuple => {
+                    timestamps.push(new Date(tuple[0]).toLocaleString());
+                    prices.push(tuple[1]);
+                });
 
-            /** Création du graphe sur 24h. */
-            let pricesCtx = document.querySelector('#prices_chart_24h').getContext('2d');
-            this.#prices24hChart = new Chart(pricesCtx, {
-                type: 'line',
-                data: {
-                    labels: timestamps,
-                    datasets: [{
-                        label: 'Prix unitaire',
-                        data: prices,
-                        fill: true,
-                        borderColor: 'rgb(64,224,208)'
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            ticks: {
-                              callback: value => `${value}€`
+                /** Création du graphe sur 24h. */
+                let pricesCtx = document.querySelector('#prices_chart_24h').getContext('2d');
+                this.#prices24hChart = new Chart(pricesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timestamps,
+                        datasets: [{
+                            label: 'Prix unitaire',
+                            data: prices,
+                            fill: true,
+                            borderColor: 'rgb(64,224,208)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                ticks: {
+                                callback: value => `${value}€`
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Evolution du prix durant les dernières 24h.'
                             }
                         }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Evolution du prix durant les dernières 24h.'
-                        }
                     }
-                }
+                });
             });
-        });
+        }
+        catch (error)
+        {
+            document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+        }
     }
 
     /** 
@@ -84,50 +91,57 @@ export class CryptoCharts
      */
     async set30jPricesChart(cryptoId)
     {
-        await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=eur&days=30&interval=daily&precision=max`)
-        .then((response) => {
-            if (!response.ok)
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            return response.json();
-        })
-        .then((data) => {
-            /** Séparation en deux listes des dates et des prix. */
-            let timestamps = [];
-            let prices = [];
-            data.prices.forEach(tuple => {
-                timestamps.push(new Date(tuple[0]).toLocaleDateString());
-                prices.push(tuple[1]);
-            });
+        try
+        {
+            await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=eur&days=30&interval=daily&precision=max`)
+            .then((response) => {
+                if (!response.ok)
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                /** Séparation en deux listes des dates et des prix. */
+                let timestamps = [];
+                let prices = [];
+                data.prices.forEach(tuple => {
+                    timestamps.push(new Date(tuple[0]).toLocaleDateString());
+                    prices.push(tuple[1]);
+                });
 
-            /** Création du graphe sur 7jours. */
-            let pricesCtx = document.querySelector('#prices_chart_30j').getContext('2d');
-            this.#prices30jChart = new Chart(pricesCtx, {
-                type: 'line',
-                data: {
-                    labels: timestamps,
-                    datasets: [{
-                        label: 'Prix unitaire',
-                        data: prices,
-                        fill: true,
-                        borderColor: 'rgb(255,165,0)'
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            ticks: {
-                              callback: value => `${value}€`
+                /** Création du graphe sur 7jours. */
+                let pricesCtx = document.querySelector('#prices_chart_30j').getContext('2d');
+                this.#prices30jChart = new Chart(pricesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timestamps,
+                        datasets: [{
+                            label: 'Prix unitaire',
+                            data: prices,
+                            fill: true,
+                            borderColor: 'rgb(255,165,0)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                ticks: {
+                                callback: value => `${value}€`
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Evolution du prix durant les derniers 30 jours.'
                             }
                         }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Evolution du prix durant les derniers 30 jours.'
-                        }
                     }
-                }
+                });
             });
-        });
+        }
+        catch (error)
+        {
+            document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+        }
     }
 }
