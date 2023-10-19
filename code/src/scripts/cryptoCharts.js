@@ -20,8 +20,10 @@ export class CryptoCharts
 
         /** Lors de la fermeture du modal les deux graphiques sont supprimés. */
         document.querySelector('#main_modal').addEventListener('hide.bs.modal', (event) => {
-            this.#prices24hChart.destroy();
-            this.#prices30jChart.destroy();
+            if (this.#prices24hChart)
+                this.#prices24hChart.destroy();
+            if (this.#prices30jChart)
+                this.#prices30jChart.destroy();
         });
     }
 
@@ -81,7 +83,8 @@ export class CryptoCharts
         }
         catch (error)
         {
-            document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+            if (document.querySelector('#chart_show_error'))
+                document.querySelector('#chart_show_error').textContent = `Erreur: ${error} !`;
         }
     }
 
@@ -141,7 +144,8 @@ export class CryptoCharts
         }
         catch (error)
         {
-            document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+            if (document.querySelector('#chart_show_error'))
+                document.querySelector('#chart_show_error').textContent = `Erreur: ${error} !`;
         }
     }
 }

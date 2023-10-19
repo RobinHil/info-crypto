@@ -79,7 +79,8 @@ export class App
         }
         catch(error)
         {
-            document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
+            if (document.querySelector('#page_show_error'))
+                document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
         }
     }
 
@@ -110,8 +111,6 @@ export class App
     {
         btnList.forEach(btn => {
             btn.addEventListener('click', (event) => {
-                document.querySelector('#modal_show_error').textContent = '';
-
                 /** Récupération dans '#cryptoMap' la cryptomonnaie correspondante au bouton (id du bouton = id de la cryptomonnaie). */
                 let crypto = this.#cryptoMap.get(btn.id);
                 
@@ -134,38 +133,61 @@ export class App
      */
     fillModalContent(crypto)
     {
-        /** Création à partir du template crypto-modal.mustache du contenu du modal affichant les détails des cryptomonnaies.
-         * Le template est remplit à partir des données contenues dans le paramètre crypto de classe Crypto.
-         */
-        let modal_template = require('../templates/crypto-modal.mustache');
-        document.querySelector('#crypto_modal').innerHTML += Mustache.render(modal_template, {
-            cryptoName: crypto.name,
-            cryptoSymbol: crypto.symbol,
-            cryptoPrice: crypto.current_price,
-            cryptoRank: crypto.market_cap_rank,
-            cryptoCap: crypto.market_cap,
-            highPrice: crypto.high_24h,
-            lowPrice: crypto.low_24h,
-            priceEvo: (crypto.price_change_24h>0?'+'+crypto.price_change_24h:crypto.price_change_24h),
-            priceEvoP: (crypto.price_change_percentage_24h>0?'+'+crypto.price_change_percentage_24h:crypto.price_change_percentage_24h),
-            capEvo: (crypto.market_cap_change_24h>0?'+'+crypto.market_cap_change_24h:crypto.market_cap_change_24h),
-            capEvoP: (crypto.market_cap_change_percentage_24h>0?'+'+crypto.market_cap_change_percentage_24h:crypto.market_cap_change_percentage_24h),
-            cryptoCircSupply: crypto.circulating_supply,
-            cryptoSupply: (crypto.total_supply?crypto.total_supply:"indéfinie."),
-            cryptoMaxSupply: (crypto.max_supply?crypto.max_supply:"indéfinie.")
-        });
-        
-        /** Les couleurs de certaines balises du contenu du modal sont changées en fonction du contenu de celles-ci. */
-        document.querySelector('#price_evo').style.color = (crypto.price_change_24h>0?"darkgreen":"crimson");
-        document.querySelector('#cap_evo').style.color = (crypto.market_cap_change_24h>0?"darkgreen":"crimson");
-        if (crypto.market_cap_rank == 3)
-            document.querySelector('#crypto_rank').style.color = '#614e1a';
-        else if (crypto.market_cap_rank == 2)
-            document.querySelector('#crypto_rank').style.color = 'silver';
-        else if (crypto.market_cap_rank == 1)
-            document.querySelector('#crypto_rank').style.color = 'gold';
+        if (crypto=='')
+        {
+            let modal_template = require('../templates/crypto-modal.mustache');
+            document.querySelector('#crypto_modal').innerHTML += Mustache.render(modal_template, {
+                cryptoName: '',
+                cryptoSymbol: '',
+                cryptoPrice: '',
+                cryptoRank: '',
+                cryptoCap: '',
+                highPrice: '',
+                lowPrice: '',
+                priceEvo: '',
+                priceEvoP: '',
+                capEvo: '',
+                capEvoP: '',
+                cryptoCircSupply: '',
+                cryptoSupply: '',
+                cryptoMaxSupply: ''
+            });
+        }
         else
-            document.querySelector('#crypto_rank').style.color = 'black';
+        {
+            /** Création à partir du template crypto-modal.mustache du contenu du modal affichant les détails des cryptomonnaies.
+             * Le template est remplit à partir des données contenues dans le paramètre crypto de classe Crypto.
+             */
+            let modal_template = require('../templates/crypto-modal.mustache');
+            document.querySelector('#crypto_modal').innerHTML += Mustache.render(modal_template, {
+                cryptoName: crypto.name,
+                cryptoSymbol: crypto.symbol,
+                cryptoPrice: crypto.current_price,
+                cryptoRank: crypto.market_cap_rank,
+                cryptoCap: crypto.market_cap,
+                highPrice: crypto.high_24h,
+                lowPrice: crypto.low_24h,
+                priceEvo: (crypto.price_change_24h>0?'+'+crypto.price_change_24h:crypto.price_change_24h),
+                priceEvoP: (crypto.price_change_percentage_24h>0?'+'+crypto.price_change_percentage_24h:crypto.price_change_percentage_24h),
+                capEvo: (crypto.market_cap_change_24h>0?'+'+crypto.market_cap_change_24h:crypto.market_cap_change_24h),
+                capEvoP: (crypto.market_cap_change_percentage_24h>0?'+'+crypto.market_cap_change_percentage_24h:crypto.market_cap_change_percentage_24h),
+                cryptoCircSupply: crypto.circulating_supply,
+                cryptoSupply: (crypto.total_supply?crypto.total_supply:"indéfinie."),
+                cryptoMaxSupply: (crypto.max_supply?crypto.max_supply:"indéfinie.")
+            });
+            
+            /** Les couleurs de certaines balises du contenu du modal sont changées en fonction du contenu de celles-ci. */
+            document.querySelector('#price_evo').style.color = (crypto.price_change_24h>0?"darkgreen":"crimson");
+            document.querySelector('#cap_evo').style.color = (crypto.market_cap_change_24h>0?"darkgreen":"crimson");
+            if (crypto.market_cap_rank == 3)
+                document.querySelector('#crypto_rank').style.color = '#614e1a';
+            else if (crypto.market_cap_rank == 2)
+                document.querySelector('#crypto_rank').style.color = 'silver';
+            else if (crypto.market_cap_rank == 1)
+                document.querySelector('#crypto_rank').style.color = 'gold';
+            else
+                document.querySelector('#crypto_rank').style.color = 'black';
+        }
     }
 
     /** Fonction setSearch() membre de la classe App qui gère la recherche de cryptomonnaies. */
@@ -177,7 +199,6 @@ export class App
 
         /** Actions à réaliser lorsqu'on clique sur le bouton de recherche. */
         document.querySelector('#search_btn').addEventListener('click', (event) => {
-            document.querySelector('search_show_error').textContent = '';
             document.querySelector('#search_modal_title').textContent = 'Recherche : \''+document.querySelector('#search_input').value+'\'';
             /** Appel à la fonction de recherche uniquement si le contenu de la recherche est non nul. */
             if (document.querySelector('#search_input').value!=='')
@@ -207,6 +228,7 @@ export class App
                 return response.json();
             })
             .then((data) => {
+                document.querySelector('#search_show_error').textContent = '';
                 /** Ajoute le contenu du tableau avec tous les résultats de la recherche. */
                 let tbody = document.createElement('tbody');
                 document.querySelector('table').appendChild(tbody);
@@ -223,8 +245,9 @@ export class App
             });
         }
         catch (error)
-        {
-            document.querySelector('#search_show_error').textContent = `Erreur: ${error} !`;
+        {   
+            if (document.querySelector('#modal_show_error'))
+                document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
         }
 
         /** Affiche les informations d'une crypto lorsque son bouton 'Voir plus' est cliqué dans le tableau des résultats des recherches. */
@@ -246,7 +269,9 @@ export class App
                 }
                 catch (error)
                 {
-                    document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
+                    this.fillModalContent('');
+                    if (document.querySelector('#modal_show_error'))
+                        document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
                 }
             });
         });
@@ -258,7 +283,6 @@ export class App
      */
     async reload()
     {
-        document.querySelector('page_show_error').textContent = '';
         try
         {  
             await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
@@ -268,6 +292,7 @@ export class App
                 return response.json();
             })
             .then((data) => {
+                document.querySelector('#page_show_error').textContent = '';
                 data.forEach(cryptoData => {
                     /** Un nouvel objet Crypto est créé seulement si la cryptomonnaie n'est pas déjà intégrée. */
                     if (!this.#cryptoMap.has(cryptoData.id))
@@ -297,7 +322,8 @@ export class App
         }
         catch (error)
         {
-            document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
+            if (document.querySelector('#page_show_error'))
+                document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
         }
     }
 }
