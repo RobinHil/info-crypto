@@ -1,0 +1,62 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+html, body {
+    margin: 0;
+}
+
+#app_logo {
+    height: 37.5px;
+    margin-left: 1%;
+    margin-bottom: 0.5%
+}
+
+h2 {
+    color: rgb(25, 135, 84);
+    font-weight: bold;
+    margin-top: 6.5%;
+    margin-bottom: 2%;
+    margin-left: 5%;
+}
+
+.card {
+    padding: 6%;
+    margin-bottom: 7.5%;
+}
+
+.card img {
+    align-self: center;
+    width: 70%;
+    height: auto;
+    aspect-ratio: 1;
+    margin-bottom: 5%;
+}
+
+.caption {
+    margin-left: 7%;
+}
+
+.card:hover {
+    box-shadow: 0px 0px 15px lightgray;
+    transition: all 0.25s ease;
+}
+
+.modal-body h5 {
+    color: rgb(25, 135, 84);
+}
+
+.modal-body div {
+    display: flex;
+    align-items: flex-start;
+}
+
+#high_price {
+    color: darkgreen;
+}
+
+#low_price {
+    color: crimson;
+}
+
+footer {
+    margin-top: 1%;
+}

@@ -3,8 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-# Ne pas prendre en compte les modules webpack
+# Ne pas prendre en compte les modules/exports webpack
 code/node_modules/
+code/dist/
 
 # User-specific files
 *.rsuser

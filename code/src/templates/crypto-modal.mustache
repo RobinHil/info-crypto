@@ -1,0 +1,59 @@
+<div class="modal-content" id="modal_content">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal_title">{{cryptoName}} ({{cryptoSymbol}})</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <h5>&emsp;Valeur</h5>
+        <br>
+        <div>
+            <h6>&emsp;&emsp;&emsp;Prix actuel :&nbsp;</h6>
+            <h6 id="crypto_price">{{cryptoPrice}}€</h6>
+        </div>
+        <hr>
+        <h5>&emsp;Capitalisation</h5>
+        <br>
+        <div>
+            <p>&emsp;&emsp;&emsp;Rang de capitalisation :&nbsp;</p>
+            <p id="crypto_rank">n°{{cryptoRank}}</p>
+            <p>&emsp;&emsp;&emsp;Capitalisation totale :&nbsp;</p>
+            <p id="crypto_cap">{{cryptoCap}}€</p>
+        </div>
+        <hr>
+        <h5>&emsp;Variations (24h)</h5>
+        <br>
+        <div>
+            <p>&emsp;&emsp;&emsp;&emsp;Prix haut :&nbsp;</p>
+            <p id="high_price">{{highPrice}}€</p>
+            <p>&emsp;&emsp;&emsp;Prix bas :&nbsp;</p>
+            <p id="low_price">{{lowPrice}}€</p>
+        </div>
+        <br>
+        <div>
+            <p >&emsp;&emsp;&emsp;Evolution du prix :&nbsp;</p>
+            <p id="price_evo">{{priceEvo}}€ ({{priceEvoP}}%)</p>
+        </div>
+        <div>
+            <p>&emsp;&emsp;&emsp;Evolution de la capitalisation :&nbsp;</p>
+            <p id="cap_evo">{{capEvo}}€ ({{capEvoP}}%)</p>
+        </div>
+        <br>
+        <canvas id="prices_chart_24h"></canvas>
+        <br>
+        <canvas id="prices_chart_30j"></canvas>
+        <hr>
+        <h5>&emsp;Supply</h5>
+        <br>
+        <div>
+            <p>&emsp;&emsp;&emsp;Circulante:&nbsp;</p>
+            <p id="crypto_circ_supply">{{cryptoCircSupply}}</p>
+            <p>&emsp;&emsp;&emsp;Totale:&nbsp;</p>
+            <p id="crypto_supply">{{cryptoSupply}}</p>
+            <p>&emsp;&emsp;&emsp;Maximale:&nbsp;</p>
+            <p id="crypto_max_supply">{{cryptoMaxSupply}}</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+    </div>
+</div>

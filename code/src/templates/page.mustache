@@ -1,0 +1,25 @@
+<div class="container-fluid" id="main_container">
+    <header>
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-success">
+            <div class="container-fluid">
+                <img src="{{sourceLogo}}" alt="Logo." id="app_logo"/>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Rechercher" id="search_input">
+                    <button class="btn btn-outline-light" type="button" id="search_btn" data-bs-toggle="modal" data-bs-target="#search_modal">Rechercher</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+        <h2>Cryptomonnaies&ensp;<small class="text-muted h6">100 premières capitalisations</small></h2>
+        <div class="row" id="all_cards">
+        </div>
+        <div id="modal">
+            <div class="modal fade" id="main_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Détails concernant une crypto-monnaie." aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" id="crypto_modal">
+                </div>
+            </div>
+        </div>
+    <footer>
+        <p id="copyr">&copy;2023 Hilaire <a href="https://iut.univ-amu.fr/fr">IUT d'Aix-Marseille</a>, site d'Arles | API par <a href="https://www.coingecko.com/fr/api">CoinGecko</a></p>
+    </footer>
+</div>
