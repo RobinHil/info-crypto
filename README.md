@@ -1,2 +1,2 @@
-# projet_R3.01
-Exploitation de l'API de CoinGecko.
+# InfoCrypto
+Une application web qui exploite l'API de CoinGecko.
