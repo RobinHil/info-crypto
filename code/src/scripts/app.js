@@ -51,12 +51,12 @@ export class App
     }
 
     /** Fonction membre setApp() de la classe App qui met en place les éléments de l'application web. */
-    async setApp()
+    setApp()
     {
         /** Récupère les données des 100 cryptomonnaies avec les plus grosses capitalisations. */
         try
         {
-            await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+            fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
             .then((response) => {
                 if (!response.ok)
                     throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -216,12 +216,12 @@ export class App
      * Permet d'effectuer la recherche à partir de la chaîne de caractères en paramètre puis ajoute les entrées au tableau des résultats de recherche.
      * @param { String } searchStr Chaîne de caractères contenant la recherche à effectuer.
      */
-    async search(searchStr)
+    search(searchStr)
     {
         try
         {
             /** Requête permettant d'obtenir les résultats de la recherche. */
-            await fetch(`https://api.coingecko.com/api/v3/search?query=${searchStr}`)
+            fetch(`https://api.coingecko.com/api/v3/search?query=${searchStr}`)
             .then((response) => {
                 if (!response.ok)
                     throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -252,10 +252,10 @@ export class App
 
         /** Affiche les informations d'une crypto lorsque son bouton 'Voir plus' est cliqué dans le tableau des résultats des recherches. */
         document.querySelectorAll('.search-voir-plus').forEach(btn => {
-            btn.addEventListener('click', async (event) => {
+            btn.addEventListener('click', (event) => {
                 try
                 {
-                    await fetch(`https://api.coingecko.com/api/v3/coins/${btn.id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
+                    fetch(`https://api.coingecko.com/api/v3/coins/${btn.id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
                     .then((response) => {
                         if (!response.ok)
                             throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -281,11 +281,11 @@ export class App
      * Fonction reload() membre de la classe App.
      * Permet de recharger #cryptoMap avec des données à jour pour les 100 premières capitalisations en cryptomonnaies.
      */
-    async reload()
+    reload()
     {
         try
         {  
-            await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+            fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
             .then((response) => {
                 if (!response.ok)
                     throw new Error(`Erreur HTTP! statut: ${response.status}`);
