@@ -37,7 +37,7 @@ Une application web moderne qui exploite l'API de CoinGecko pour visualiser et s
 
 1. Clonez le repository :
 ```bash
-git clone [url-du-repo]
+git clone https://github.com/RobinHil/info-crypto.git
 ```
 
 2. Installez les dépendances :
