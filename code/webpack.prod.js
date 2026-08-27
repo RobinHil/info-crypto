@@ -14,7 +14,10 @@ module.exports = merge(common, {
         // resolve-url-loader a besoin d'une source map de sass-loader pour
         // reecrire les url() relatives.
         { loader: 'resolve-url-loader', options: { sourceMap: true }},
-        { loader: 'sass-loader', options: { sourceMap: true }}
+        // charset: false - sinon Dart Sass prefixe sa sortie d'un BOM des que le CSS
+        // contient du non-ASCII. style-loader l'injecte tel quel dans <style>, ou il
+        // invalide le premier selecteur (le :root de Bootstrap, donc toutes ses variables).
+        { loader: 'sass-loader', options: { sourceMap: true, sassOptions: { charset: false } }}
       ],
     }]
   },
