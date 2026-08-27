@@ -47,6 +47,5 @@ module.exports = {
       favicon: path.resolve(__dirname, './src/img/favicon.ico'),
     }),
     new CleanWebpackPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
   ]
 }

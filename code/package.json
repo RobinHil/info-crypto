@@ -1,6 +1,7 @@
 {
   "name": "infocrypto",
   "version": "1.0.0",
+  "private": true,
   "description": "Un visualiseur de cryptomonnaies et leurs informations.",
   "main": "index.js",
   "scripts": {
@@ -10,7 +11,6 @@
   },
   "keywords": [],
   "author": "HILAIRE Robin",
-  "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/preset-env": "^7.23.2",

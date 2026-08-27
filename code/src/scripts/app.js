@@ -54,48 +54,48 @@ export class App
     setApp()
     {
         /** Récupère les données des 100 cryptomonnaies avec les plus grosses capitalisations. */
-        try
-        {
-            fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
-            .then((response) => {
-                if (!response.ok)
-                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                return response.json();
-            })
-            .then((data) => {
-                /** Pour chaque cryptomonnaie on récupère ses données. */
-                data.forEach(cryptoData => {
-                    /** Si une cryptomonnaie n'est pas dans '#cryptoMap' on peut la créer puis l'ajouter à la map et ajouter dans l'affichage sa carte. */
-                    if (!this.#cryptoMap.has(cryptoData.id))
-                    {
-                        let crypto = new Crypto(cryptoData);
-                        this.#cryptoMap.set(crypto.id, crypto);
-                        this.addCryptoCard(crypto);
-                    }
-                });
-                /** Appel de la fonction membre setModal de la classe App avec en paramètre la liste des boutons 'voir plus' des cartes de cryptomonnaies. */
-                this.setModal(document.querySelectorAll('.voir-plus'));
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+        .then((response) => {
+            if (!response.ok)
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            return response.json();
+        })
+        .then((data) => {
+            /** Pour chaque cryptomonnaie on récupère ses données. */
+            let cards = '';
+            data.forEach(cryptoData => {
+                /** Si une cryptomonnaie n'est pas dans '#cryptoMap' on peut la créer puis l'ajouter à la map et ajouter dans l'affichage sa carte. */
+                if (!this.#cryptoMap.has(cryptoData.id))
+                {
+                    let crypto = new Crypto(cryptoData);
+                    this.#cryptoMap.set(crypto.id, crypto);
+                    cards += this.renderCryptoCard(crypto);
+                }
             });
-        }
-        catch(error)
-        {
+            /** Les 100 cartes sont insérées en une fois (un innerHTML += par carte reparsait tout le conteneur à chaque tour). */
+            document.querySelector('#all_cards').insertAdjacentHTML('beforeend', cards);
+            /** Appel de la fonction membre setModal de la classe App avec en paramètre la liste des boutons 'voir plus' des cartes de cryptomonnaies. */
+            this.setModal(document.querySelectorAll('.voir-plus'));
+        })
+        .catch((error) => {
+            /** Un try/catch autour d'une chaîne de promesses n'intercepte rien : il faut un .catch(). */
             if (document.querySelector('#page_show_error'))
-                document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
-        }
+                document.querySelector('#page_show_error').textContent = `Erreur: ${error.message} !`;
+        });
     }
 
     /**
-     * Fonction membre addCryptoCard(crypto) de la classe App qui crée et affiche la carte de la cryptomonnaie passée en paramètre.
+     * Fonction membre renderCryptoCard(crypto) de la classe App qui construit le HTML de la carte de la cryptomonnaie passée en paramètre.
      * @param { Crypto } crypto Objet de la classe Crypto.
      */
-    addCryptoCard(crypto)
+    renderCryptoCard(crypto)
     {
         /**
          * Création à partir du template card.mustache et des données de Crypto de la carte de la crypto passée en paramètre.
-         * Cette carte est ajoutée au div de classe 'allCards' de la page qui contient toutes les cartes de cryptomonnaies.
+         * Le HTML est renvoyé à l'appelant, qui insère toutes les cartes en une seule opération.
          */
         let card_template = require('../templates/card.mustache');
-        document.querySelector('#all_cards').innerHTML += Mustache.render(card_template, {
+        return Mustache.render(card_template, {
             cryptoId: crypto.id,
             source: crypto.image,
             cryptoName: crypto.name,
@@ -110,21 +110,32 @@ export class App
     setModal(btnList)
     {
         btnList.forEach(btn => {
+            /** setModal est rappelée quand de nouvelles cartes apparaissent : on n'écoute qu'une fois par bouton. */
+            if (btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+
             btn.addEventListener('click', (event) => {
                 /** Récupération dans '#cryptoMap' la cryptomonnaie correspondante au bouton (id du bouton = id de la cryptomonnaie). */
                 let crypto = this.#cryptoMap.get(btn.id);
-                
+
                 /** Appel de la fonction fillModalContent membre de la classe App avec en paramètre la cryptomonnaie récupérée précédemment. */
                 this.fillModalContent(crypto);
 
                 /** Création d'une instance de la classe CryptoCharts avec en paramètre l'id de la cryptomonnaie récupérée précédemment. */
-                let modalChart = new CryptoCharts(crypto.id);
+                new CryptoCharts(crypto.id);
             });
         });
-        /** Suppression du contenu du modal affichant les données de la cryptomonnaie lors de sa fermeture. */
-        document.querySelector('#main_modal').addEventListener('hide.bs.modal', (event) => {
-            document.querySelector('#modal_content').remove();
-        });
+
+        /** Suppression du contenu du modal affichant les données de la cryptomonnaie lors de sa fermeture (une seule fois). */
+        let mainModal = document.querySelector('#main_modal');
+        if (mainModal.dataset.bound !== '1')
+        {
+            mainModal.dataset.bound = '1';
+            mainModal.addEventListener('hide.bs.modal', (event) => {
+                /** Le contenu est absent si l'ouverture a échoué : sans ce garde, .remove() lèverait une TypeError. */
+                document.querySelector('#modal_content')?.remove();
+            });
+        }
     }
 
     /**
@@ -206,8 +217,7 @@ export class App
         });
         /** Suppression des entrées du tableau contenant les résultats de la recherche à la fermeture du modal. */
         document.querySelector('#search_modal').addEventListener('hide.bs.modal', (event) => {
-            if (document.querySelector('tbody'))
-                document.querySelector('tbody').remove();
+            document.querySelector('#search_modal tbody')?.remove();
         });
     }
     
@@ -218,61 +228,71 @@ export class App
      */
     search(searchStr)
     {
-        try
-        {
-            /** Requête permettant d'obtenir les résultats de la recherche. */
-            fetch(`https://api.coingecko.com/api/v3/search?query=${searchStr}`)
-            .then((response) => {
-                if (!response.ok)
-                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                return response.json();
-            })
-            .then((data) => {
-                document.querySelector('#search_show_error').textContent = '';
-                /** Ajoute le contenu du tableau avec tous les résultats de la recherche. */
-                let tbody = document.createElement('tbody');
-                document.querySelector('table').appendChild(tbody);
-                data.coins.forEach(cryptoData => {
-                    let search_table_template = require('../templates/search-table.mustache');
-                    tbody.innerHTML += Mustache.render(search_table_template, {
-                        cryptoRank: (cryptoData.market_cap_rank?cryptoData.market_cap_rank:'Indéfini'),
-                        cryptoId: cryptoData.id,
-                        cryptoName: cryptoData.name,
-                        cryptoSymbol: cryptoData.symbol,
-                        sourceImg: cryptoData.thumb
-                    });
+        /** La recherche est encodée : sans cela un '&' ou un '#' casserait la query string. */
+        fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(searchStr)}`)
+        .then((response) => {
+            if (!response.ok)
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            return response.json();
+        })
+        .then((data) => {
+            document.querySelector('#search_show_error').textContent = '';
+
+            /** Le tableau est construit en une seule passe puis inséré (au lieu d'un innerHTML += par ligne). */
+            let search_table_template = require('../templates/search-table.mustache');
+            let rows = '';
+            data.coins.forEach(cryptoData => {
+                rows += Mustache.render(search_table_template, {
+                    cryptoRank: (cryptoData.market_cap_rank?cryptoData.market_cap_rank:'Indéfini'),
+                    cryptoId: cryptoData.id,
+                    cryptoName: cryptoData.name,
+                    cryptoSymbol: cryptoData.symbol,
+                    sourceImg: cryptoData.thumb
                 });
             });
-        }
-        catch (error)
-        {   
-            if (document.querySelector('#modal_show_error'))
-                document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
-        }
+            let tbody = document.createElement('tbody');
+            tbody.innerHTML = rows;
+            document.querySelector('#search_modal table').appendChild(tbody);
 
-        /** Affiche les informations d'une crypto lorsque son bouton 'Voir plus' est cliqué dans le tableau des résultats des recherches. */
-        document.querySelectorAll('.search-voir-plus').forEach(btn => {
+            /**
+             * Les écouteurs sont posés ICI, une fois les lignes réellement insérées.
+             * Auparavant ils étaient posés juste après l'appel à fetch, donc sur un
+             * tableau encore vide : les boutons 'Voir plus' de la recherche ne réagissaient jamais.
+             */
+            this.bindSearchResultButtons(tbody);
+        })
+        .catch((error) => {
+            /** Un try/catch autour d'une chaîne de promesses n'intercepte rien : il faut un .catch(). */
+            if (document.querySelector('#search_show_error'))
+                document.querySelector('#search_show_error').textContent = `Erreur: ${error.message} !`;
+        });
+    }
+
+    /**
+     * Fonction bindSearchResultButtons(tbody) membre de la classe App.
+     * Branche l'ouverture du détail sur chaque bouton 'Voir plus' du tableau de résultats.
+     * @param { HTMLElement } tbody Le corps de tableau contenant les résultats de la recherche.
+     */
+    bindSearchResultButtons(tbody)
+    {
+        tbody.querySelectorAll('.search-voir-plus').forEach(btn => {
             btn.addEventListener('click', (event) => {
-                try
-                {
-                    fetch(`https://api.coingecko.com/api/v3/coins/${btn.id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
-                    .then((response) => {
-                        if (!response.ok)
-                            throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                        return response.json();
-                    })
-                    .then((data) => {
-                        let crypto = new Crypto(data);
-                        this.fillModalContent(crypto);
-                        let modalChart = new CryptoCharts(crypto.id);
-                    });
-                }
-                catch (error)
-                {
+                fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(btn.id)}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`)
+                .then((response) => {
+                    if (!response.ok)
+                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                    return response.json();
+                })
+                .then((data) => {
+                    let crypto = new Crypto(data);
+                    this.fillModalContent(crypto);
+                    new CryptoCharts(crypto.id);
+                })
+                .catch((error) => {
                     this.fillModalContent('');
                     if (document.querySelector('#modal_show_error'))
-                        document.querySelector('#modal_show_error').textContent = `Erreur: ${error} !`;
-                }
+                        document.querySelector('#modal_show_error').textContent = `Erreur: ${error.message} !`;
+                });
             });
         });
     }
@@ -283,9 +303,7 @@ export class App
      */
     reload()
     {
-        try
-        {  
-            fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=fr&precision=max')
             .then((response) => {
                 if (!response.ok)
                     throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -293,13 +311,14 @@ export class App
             })
             .then((data) => {
                 document.querySelector('#page_show_error').textContent = '';
+                let cards = '';
                 data.forEach(cryptoData => {
                     /** Un nouvel objet Crypto est créé seulement si la cryptomonnaie n'est pas déjà intégrée. */
                     if (!this.#cryptoMap.has(cryptoData.id))
                     {
                         let crypto = new Crypto(cryptoData);
                         this.#cryptoMap.set(crypto.id, crypto);
-                        this.addCryptoCard(crypto);
+                        cards += this.renderCryptoCard(crypto);
                     }
                     else
                     {
@@ -318,12 +337,17 @@ export class App
                         this.#cryptoMap.get(cryptoData.id).max_supply = cryptoData.max_supply;
                     }
                 });
+                if (cards)
+                {
+                    document.querySelector('#all_cards').insertAdjacentHTML('beforeend', cards);
+                    /** Les cartes nouvellement apparues doivent recevoir leur écouteur 'Voir plus'. */
+                    this.setModal(document.querySelectorAll('.voir-plus'));
+                }
+            })
+            .catch((error) => {
+                /** Un try/catch autour d'une chaîne de promesses n'intercepte rien : il faut un .catch(). */
+                if (document.querySelector('#page_show_error'))
+                    document.querySelector('#page_show_error').textContent = `Erreur: ${error.message} !`;
             });
-        }
-        catch (error)
-        {
-            if (document.querySelector('#page_show_error'))
-                document.querySelector('#page_show_error').textContent = `Erreur: ${error} !`;
-        }
     }
 }

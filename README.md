@@ -1,94 +1,57 @@
 # InfoCrypto
 
-Une application web moderne qui exploite l'API de CoinGecko pour visualiser et suivre les cryptomonnaies en temps réel.
+A web app that tracks cryptocurrencies in real time using the public
+[CoinGecko](https://www.coingecko.com/en/api) API: a grid of the top 100 coins by
+market capitalization, a searchable index of every listed coin, and a detail view
+with 24-hour and 30-day price charts.
 
-## Fonctionnalités
+## Features
 
-- Affichage des 100 premières cryptomonnaies par capitalisation
-- Actualisation automatique des données toutes les minutes
-- Graphiques interactifs montrant l'évolution des prix sur 24h et 30 jours
-- Fonction de recherche pour trouver n'importe quelle cryptomonnaie
-- Informations détaillées pour chaque cryptomonnaie :
-  - Prix actuel et variations
-  - Rang de capitalisation
-  - Supply (circulant, total et maximum)
-  - Variations de prix sur 24h
-  - Évolution de la capitalisation
+- The top 100 coins by market cap, refreshed automatically every minute.
+- Search across the whole CoinGecko index, with direct access to any result.
+- A detail modal per coin: current price, 24-hour change, market cap rank,
+  circulating / total / maximum supply, and two interactive price charts
+  (24 hours and 30 days).
 
-## Technologies Utilisées
+## Stack
 
-- **Frontend** :
-  - HTML5 / SCSS
-  - JavaScript (ES6+)
-  - Bootstrap 5.3
-  - Chart.js pour les graphiques
-  - Mustache.js pour le templating
+- JavaScript (ES6+), SCSS, Bootstrap 5.3
+- Chart.js for the charts, Mustache.js for templating
+- Webpack 5, Babel, PostCSS, Sass
 
-- **Build & Development** :
-  - Webpack 5
-  - Babel
-  - PostCSS
-  - Sass
+## Running it
 
-- **API** :
-  - CoinGecko API v3
+Requires Node.js 18 or later. All the source lives in `code/`.
 
-## Installation
-
-1. Clonez le repository :
 ```bash
-git clone https://github.com/RobinHil/info-crypto.git
-```
-
-2. Installez les dépendances :
-```bash
+cd code
 npm install
+npm start          # development server on http://localhost:3000
+npm run build      # production build in dist/
 ```
 
-3. Lancez le serveur de développement :
-```bash
-npm start
+`dist/` is a plain static bundle: copy it to any web server, no runtime needed.
+
+## About the API
+
+The app calls the free public CoinGecko endpoints, with no API key. That tier is
+rate limited to roughly 5 to 15 calls per minute per IP address; beyond that the
+API answers `429` and the affected view stays empty until the next refresh. If
+you need more headroom, add a demo key to the request URLs as the
+`x_cg_demo_api_key` query parameter.
+
+## Layout
+
+```
+code/
+  src/
+    scripts/      app.js (views, search, modals), crypto.js (API client),
+                  cryptoCharts.js (Chart.js price charts)
+    templates/    Mustache templates: page, card, search modal, coin modal
+    stylesheets/  styles.scss
+  webpack.common.js / webpack.dev.js / webpack.prod.js
 ```
 
-L'application sera disponible sur `http://localhost:3000`
+## Credits
 
-## Build Production
-
-Pour créer une version de production optimisée :
-
-```bash
-npm run build
-```
-
-Les fichiers de production seront générés dans le dossier `dist/`.
-
-## Fonctionnalités Principales
-
-### Visualisation des Cryptomonnaies
-- Interface claire et intuitive
-- Affichage en grid des 100 premières cryptomonnaies
-- Cartes interactives avec images et informations de base
-
-### Modal Détaillé
-- Vue détaillée pour chaque cryptomonnaie
-- Graphiques d'évolution des prix
-- Statistiques complètes
-- Code couleur pour les variations (vert/rouge)
-
-### Recherche
-- Recherche en temps réel
-- Résultats présentés dans un tableau clair
-- Accès rapide aux détails depuis les résultats
-
-## Configuration
-
-Le projet utilise plusieurs fichiers de configuration :
-- `webpack.common.js` : Configuration Webpack commune
-- `webpack.dev.js` : Configuration de développement
-- `webpack.prod.js` : Configuration de production
-- `babel.config.json` : Configuration Babel
-- `postcss.config.js` : Configuration PostCSS
-
-## Remerciements
-
-- API fournie par [CoinGecko](https://www.coingecko.com/fr/api)
+Market data from [CoinGecko](https://www.coingecko.com/en/api).

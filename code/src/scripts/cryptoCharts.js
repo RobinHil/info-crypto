@@ -19,12 +19,13 @@ export class CryptoCharts
         this.set30jPricesChart(cryptoId);
 
         /** Lors de la fermeture du modal les deux graphiques sont supprimés. */
+        /** { once: true } : sans cela un écouteur s'ajoutait à chaque ouverture du modal, sans jamais être retiré. */
         document.querySelector('#main_modal').addEventListener('hide.bs.modal', (event) => {
             if (this.#prices24hChart)
                 this.#prices24hChart.destroy();
             if (this.#prices30jChart)
                 this.#prices30jChart.destroy();
-        });
+        }, { once: true });
     }
 
     /**
