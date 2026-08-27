@@ -9,10 +9,12 @@ module.exports = merge(common, {
       test: /\.(scss|css)$/,
       use: [
         'style-loader',
-        { loader: 'css-loader', options: { importLoaders: 1 }},
-        'postcss-loader',
-        'resolve-url-loader',
-        'sass-loader'
+        { loader: 'css-loader', options: { importLoaders: 3, sourceMap: true }},
+        { loader: 'postcss-loader', options: { sourceMap: true }},
+        // resolve-url-loader a besoin d'une source map de sass-loader pour
+        // reecrire les url() relatives.
+        { loader: 'resolve-url-loader', options: { sourceMap: true }},
+        { loader: 'sass-loader', options: { sourceMap: true }}
       ],
     }]
   },

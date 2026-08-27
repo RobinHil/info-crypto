@@ -17,11 +17,12 @@ with 24-hour and 30-day price charts.
 
 - JavaScript (ES6+), SCSS, Bootstrap 5.3
 - Chart.js for the charts, Mustache.js for templating
-- Webpack 5, Babel, PostCSS, Sass
+- Webpack 5, Babel 8, PostCSS, Sass
 
 ## Running it
 
-Requires Node.js 18 or later. All the source lives in `code/`.
+Requires Node.js 24 (the current LTS); see `code/.nvmrc`. All the source
+lives in `code/`.
 
 ```bash
 cd code
