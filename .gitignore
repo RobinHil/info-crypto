@@ -4,8 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # Ne pas prendre en compte les modules/exports webpack
-code/node_modules/
-code/dist/
+node_modules/
+dist/
 *package-lock.json
 
 # User-specific files

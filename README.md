@@ -21,11 +21,9 @@ with 24-hour and 30-day price charts.
 
 ## Running it
 
-Requires Node.js 24 (the current LTS); see `code/.nvmrc`. All the source
-lives in `code/`.
+Requires Node.js 24 (the current LTS); see `.nvmrc`.
 
 ```bash
-cd code
 npm install
 npm start          # development server on http://localhost:3000
 npm run build      # production build in dist/
@@ -44,13 +42,12 @@ you need more headroom, add a demo key to the request URLs as the
 ## Layout
 
 ```
-code/
-  src/
-    scripts/      app.js (views, search, modals), crypto.js (API client),
-                  cryptoCharts.js (Chart.js price charts)
-    templates/    Mustache templates: page, card, search modal, coin modal
-    stylesheets/  styles.scss
-  webpack.common.js / webpack.dev.js / webpack.prod.js
+src/
+  scripts/      app.js (views, search, modals), crypto.js (API client),
+                cryptoCharts.js (Chart.js price charts)
+  templates/    Mustache templates: page, card, search modal, coin modal
+  stylesheets/  styles.scss
+webpack.common.js / webpack.dev.js / webpack.prod.js
 ```
 
 ## Credits
