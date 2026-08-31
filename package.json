@@ -1,5 +1,6 @@
 {
   "name": "infocrypto",
+  "license": "MIT",
   "version": "1.0.0",
   "private": true,
   "description": "Un visualiseur de cryptomonnaies et leurs informations.",
