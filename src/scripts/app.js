@@ -35,7 +35,15 @@ export class App
          * Chargement à l'intérieur du body du template de la page avec Mustache.
          */
         let page_template = require('../templates/page.mustache');
-        document.querySelector('body').innerHTML += Mustache.render(page_template, {sourceLogo: logo});
+        /**
+         * L'annee du copyright est calculee au chargement, et non figee dans le
+         * gabarit : une annee en dur devient fausse le 1er janvier suivant, sans
+         * que personne ne s'en apercoive.
+         */
+        document.querySelector('body').innerHTML += Mustache.render(page_template, {
+            sourceLogo: logo,
+            annee: new Date().getFullYear(),
+        });
 
         /** Appel de la fonction membre App.setApp. */
         this.setApp();
